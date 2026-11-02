@@ -7,6 +7,7 @@ class LoginPage:
         self.username = page.get_by_test_id('username')
         self.password = page.get_by_test_id('password')
         self.login_button = page.get_by_test_id('login-button')
+        self.error = page.get_by_test_id('error')
 
     def open(self):
         self.page.goto('/')
