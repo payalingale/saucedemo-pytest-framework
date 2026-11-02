@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 saucedemo-pytest-framework/
 ├── .github/workflows/tests.yml
 ├── pages/
@@ -74,3 +75,6 @@ A self-review: one change you’d make with more time
 A mock interview: 2-minute framework walkthrough plus 15 questions on your own code
 The final test: rebuild the login chunk from an empty folder in 30 minutes, with no notes
 ✅ Done when: you score PASS on at least 10 of 15, and the rebuild works
+=======
+# saucedemo-pytest-framework
+>>>>>>> 5002a7f9f0604fd8fff6562545825085dbb77e58
