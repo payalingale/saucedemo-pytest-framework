@@ -1,7 +1,10 @@
 
 from playwright.sync_api import expect
+from decimal import Decimal
+import pytest
 
 
+@pytest.mark.smoke
 def test_complete_purchase_of_two_items(inventory_page, cart_page, checkout_info_page, checkout_overview_page, checkout_complete_page):
     inventory_page.add_to_cart("Sauce Labs Onesie")
     inventory_page.add_to_cart("Sauce Labs Backpack")
@@ -23,8 +26,16 @@ def test_overview_total_matches_item_prices(inventory_page, cart_page, checkout_
     checkout_info_page.enter_details('John', 'Doe', '00000')
     checkout_info_page.click_continue()
     expect(checkout_overview_page.inventory_item_price).to_have_count(2)
-    prices = checkout_overview_page.subtotal_label.all_text_contents()
-    print(prices.strip())
+    prices = checkout_overview_page.inventory_item_price.all_text_contents()
+    subtotal = sum(Decimal(p.replace("$", ""))
+                   # YOUR calculation
+                   for p in prices)
+    tax_text = checkout_overview_page.tax_label.text_content()
+    tax = Decimal(tax_text.split("$")[1])
+    expect(checkout_overview_page.subtotal_label).to_have_text(
+        f"Item total: ${subtotal}")
+    expect(checkout_overview_page.total_label).to_have_text(
+        f"Total: ${subtotal + tax}")
 
 
 def test_checkout_requires_first_name(inventory_page, cart_page, checkout_info_page):
