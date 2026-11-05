@@ -1,6 +1,10 @@
 import pytest
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
+from pages.cart_page import CartPage
+from pages.checkout_info_page import CheckOutInfoPage
+from pages.checkout_overview_page import CheckoutOverviewPage
+from pages.checkout_complete_page import CheckoutCompletePage
 from playwright.sync_api import Page
 
 
@@ -20,3 +24,23 @@ def login_page(page: Page):
 def inventory_page(login_page):
     login_page.login("standard_user", "secret_sauce")
     return InventoryPage(login_page.page)
+
+
+@pytest.fixture
+def cart_page(inventory_page):
+    return CartPage(inventory_page.page)
+
+
+@pytest.fixture
+def checkout_info_page(cart_page):
+    return CheckOutInfoPage(cart_page.page)
+
+
+@pytest.fixture
+def checkout_overview_page(cart_page):
+    return CheckoutOverviewPage(cart_page.page)
+
+
+@pytest.fixture
+def checkout_complete_page(cart_page):
+    return CheckoutCompletePage(cart_page.page)
