@@ -1,3 +1,4 @@
+from data.users import standard_user
 import pytest
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
@@ -6,6 +7,28 @@ from pages.checkout_info_page import CheckOutInfoPage
 from pages.checkout_overview_page import CheckoutOverviewPage
 from pages.checkout_complete_page import CheckoutCompletePage
 from playwright.sync_api import Page
+from dotenv import load_dotenv
+load_dotenv()
+
+ENVIRONMENTS = {
+    "prod": "https://www.saucedemo.com",
+    "staging": "https://staging.saucedemo.example",
+}
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--env',
+        action='store',
+        default='prod',
+        choices=list(ENVIRONMENTS),
+        help='Environment to run against'
+    )
+
+
+@pytest.fixture(scope='session')
+def base_url(request):
+    return ENVIRONMENTS[request.config.getoption("--env")]
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -18,12 +41,6 @@ def login_page(page: Page):
     lp = LoginPage(page)
     lp.open()
     return lp
-
-
-@pytest.fixture
-def inventory_page(login_page):
-    login_page.login("standard_user", "secret_sauce")
-    return InventoryPage(login_page.page)
 
 
 @pytest.fixture
