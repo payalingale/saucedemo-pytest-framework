@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
 
-class CheckOutInfoPage:
+class CheckoutInfoPage:
     def __init__(self, page: Page):
         self.page = page
         self.first_name = page.get_by_test_id('firstName')

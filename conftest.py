@@ -1,12 +1,10 @@
-from data.users import standard_user
+
 import pytest
+import base64
+import pytest_html
 from pages.login_page import LoginPage
-from pages.inventory_page import InventoryPage
-from pages.cart_page import CartPage
-from pages.checkout_info_page import CheckOutInfoPage
-from pages.checkout_overview_page import CheckoutOverviewPage
-from pages.checkout_complete_page import CheckoutCompletePage
 from playwright.sync_api import Page
+from pytest_metadata.plugin import metadata_key
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -14,6 +12,32 @@ ENVIRONMENTS = {
     "prod": "https://www.saucedemo.com",
     "staging": "https://staging.saucedemo.example",
 }
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    report = yield
+    if report.when == 'call' and report.failed:
+        page = item.funcargs.get('page')
+        if page is not None:
+            png = page.screenshot(full_page=True)
+            report.extras = getattr(report, 'extras', []) + [
+                pytest_html.extras.png(base64.b64encode(
+                    png).decode(), name='screenshot')
+            ]
+    return report
+
+
+def pytest_configure(config):
+    config.stash[metadata_key]["Env"] = config.getoption("--env")
+    config.stash[metadata_key]["Browser"] = ", ".join(
+        config.getoption("--browser") or ["chromium"])
+    config.stash[metadata_key]["Base URL"] = ENVIRONMENTS[config.getoption(
+        "--env")]
+
+
+def pytest_html_report_title(report):
+    report.title = "SauceDemo Automation Report"
 
 
 def pytest_addoption(parser):
@@ -41,23 +65,3 @@ def login_page(page: Page):
     lp = LoginPage(page)
     lp.open()
     return lp
-
-
-@pytest.fixture
-def cart_page(inventory_page):
-    return CartPage(inventory_page.page)
-
-
-@pytest.fixture
-def checkout_info_page(cart_page):
-    return CheckOutInfoPage(cart_page.page)
-
-
-@pytest.fixture
-def checkout_overview_page(cart_page):
-    return CheckoutOverviewPage(cart_page.page)
-
-
-@pytest.fixture
-def checkout_complete_page(cart_page):
-    return CheckoutCompletePage(cart_page.page)

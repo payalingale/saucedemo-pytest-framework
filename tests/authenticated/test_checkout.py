@@ -5,7 +5,7 @@ import pytest
 from data.users import problem_user
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
-from pages.checkout_info_page import CheckOutInfoPage
+from pages.checkout_info_page import CheckoutInfoPage
 
 
 @pytest.mark.smoke

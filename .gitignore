@@ -4,4 +4,4 @@ __pycache__/
 test-results/
 .env
 *.pyc
-.DS_Store
+.DS_Storereports/
