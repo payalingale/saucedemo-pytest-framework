@@ -1,0 +1,58 @@
+name: UI tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # adds a "Run workflow" button in the Actions tab
+    inputs:
+      suite:
+        description: "Which tests to run"
+        type: choice
+        options: [smoke, full]
+        default: full
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run tests
+        env:
+          SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
+        run: |
+          COMMON="--html=reports/report.html --self-contained-html --tracing retain-on-failure --screenshot only-on-failure"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.suite }}" = "full" ]; then
+            python -m pytest -n 4 $COMMON
+          else
+            python -m pytest -m smoke $COMMON
+          fi
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: reports/
+
+      - name: Upload traces and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
