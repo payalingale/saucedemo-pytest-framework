@@ -1,6 +1,8 @@
 from playwright.sync_api import expect
+import pytest
 
 
+@pytest.mark.smoke
 def test_add_two_items_updates_badge(inventory_page):
     inventory_page.add_to_cart("Sauce Labs Onesie")
     inventory_page.add_to_cart("Sauce Labs Backpack")
