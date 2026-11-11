@@ -33,9 +33,14 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Run tests
+
         env:
           SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
         run: |
+          if [ -z "$SAUCE_PASSWORD" ]; then
+            echo "::error::SAUCE_PASSWORD secret is missing or empty"
+            exit 1
+          fi
           COMMON="--html=reports/report.html --self-contained-html --tracing retain-on-failure --screenshot only-on-failure"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.suite }}" = "full" ]; then
             python -m pytest -n 4 $COMMON
